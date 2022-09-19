@@ -11,4 +11,5 @@ public class Bike {
 
     private String model;
     private String board;
+    private int userId;
 }

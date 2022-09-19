@@ -3,6 +3,8 @@ package com.example.userservice.service;
 import com.example.userservice.Models.Bike;
 import com.example.userservice.Models.Car;
 import com.example.userservice.entity.Users;
+import com.example.userservice.feignclient.BikeFeignClient;
+import com.example.userservice.feignclient.CarFeignClient;
 import com.example.userservice.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,12 @@ public class UserService {
     @Autowired
     RestTemplate restTemplate;
 
+    @Autowired
+    CarFeignClient carFeignClient;
+
+    @Autowired
+    BikeFeignClient bikeFeignClient;
+
     public List<Users> getAll(){
         return userRepository.findAll();
     }
@@ -33,12 +41,24 @@ public class UserService {
     }
 
     public List<Car> getCars(int userId){
-        List<Car> cars = restTemplate.getForObject("http://localhost:8010/cars/byUserId/" + userId, List.class);
+        List<Car> cars = restTemplate.getForObject("http://localhost:8011/cars/byUserId/" + userId, List.class);
         return cars;
     }
 
     public List<Bike> getBike(int userId){
         List<Bike> bike = restTemplate.getForObject("http://localhost:8020/bikes/byUserId/" + userId, List.class);
         return bike;
+    }
+
+    public Car saveCar(int userId,Car car){
+        car.setUserId(userId);
+        Car carNew = carFeignClient.save(car);
+        return carNew;
+    }
+
+    public Bike saveBike(int userId,Bike bike){
+        bike.setUserId(userId);
+        Bike bikeNew = bikeFeignClient.save(bike);
+        return bikeNew;
     }
 }
